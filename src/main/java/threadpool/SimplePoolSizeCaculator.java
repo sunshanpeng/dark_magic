@@ -10,25 +10,26 @@ import java.net.URL;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class SimplePoolSizeCaculatorImpl extends PoolSizeCalculator {
+public class SimplePoolSizeCaculator extends PoolSizeCalculator {
 
     @Override
-    protected Runnable creatTask() {
+    protected Runnable createTask() {
         return new AsyncIOTask();
     }
 
     @Override
-    protected BlockingQueue createWorkQueue() {
-        return new LinkedBlockingQueue(1000);
+    protected BlockingQueue<Runnable> createWorkQueue(int capacity) {
+        return new LinkedBlockingQueue<Runnable>(capacity);
     }
 
     @Override
     protected long getCurrentThreadCPUTime() {
+        //the total CPU time for the current thread in nanoseconds
         return ManagementFactory.getThreadMXBean().getCurrentThreadCpuTime();
     }
 
     public static void main(String[] args) {
-        PoolSizeCalculator poolSizeCalculator = new SimplePoolSizeCaculatorImpl();
+        PoolSizeCalculator poolSizeCalculator = new SimplePoolSizeCaculator();
         poolSizeCalculator.calculateBoundaries(new BigDecimal(1.0), new BigDecimal(100000));
     }
 
@@ -46,17 +47,18 @@ class AsyncIOTask implements Runnable {
         HttpURLConnection connection = null;
         BufferedReader reader = null;
         try {
-            String getURL = "http://baidu.com";
-            URL getUrl = new URL(getURL);
+            URL url = new URL("http://baidu.com");
 
-            connection = (HttpURLConnection) getUrl.openConnection();
+            connection = (HttpURLConnection) url.openConnection();
             connection.connect();
             reader = new BufferedReader(new InputStreamReader(
                     connection.getInputStream()));
 
             String line;
+            StringBuilder stringBuilder;
             while ((line = reader.readLine()) != null) {
-                // empty loop
+                stringBuilder = new StringBuilder();
+                stringBuilder.append(line);
             }
         }
 
@@ -71,6 +73,7 @@ class AsyncIOTask implements Runnable {
 
                 }
             }
+            if (connection != null)
             connection.disconnect();
         }
 

@@ -24,7 +24,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>threadpool.SimplePoolSizeCaculatorImpl</mainClass>
+                            <mainClass>threadpool.SimplePoolSizeCaculator</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
