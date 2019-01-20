@@ -67,7 +67,7 @@ Addahl定律还给出了系统并行度、CPU数目和加速比的关系：
 #### `calculateBoundaries`方法
 入口类，计算线程池大小和队列数。
 
-接收两个参数，分别是CPU负载和队列总内存的大小（bytes）
+接收两个参数，CPU负载和队列总内存的大小（bytes）
 #### `calculateMemoryUsage`方法
 计算单个任务的内存大小，计算方法：
 1. 手动GC
@@ -79,7 +79,8 @@ Addahl定律还给出了系统并行度、CPU数目和加速比的关系：
 >参考：<https://www.javaspecialists.eu/archive/Issue029.html>
 #### `calculateOptimalCapacity`方法
 计算队列数，计算公式：**队列总内存**/**单个任务的内存**。
-接收一个参数，队列总内存的大小。
+
+接收一个参数：队列总内存的大小。
 
 #### `start`方法
 计算*执行3秒的任务*所消耗CPU的实际使用时间。
@@ -90,6 +91,31 @@ Addahl定律还给出了系统并行度、CPU数目和加速比的关系：
 #### `collectGarbage`方法
 循环手动GC
 ### `SimplePoolSizeCaculator`类
-是`PoolSizeCalculator`类的一个实现，计算*CPU负载1*，*队列总内存的大小为100k左右*的*IO密集型*的线程池大小和队列数
+`PoolSizeCalculator`类的一个实现，计算*CPU负载1*，*队列总内存的大小为100k左右*的*IO密集型*的线程池大小和队列数
 #### `AsyncIOTask`类
 IO密集型的一个例子
+
+## 使用方法
+```bash
+# 下载
+git clone https://github.com/sunshanpeng/dark_magic.git
+# 编译
+cd dark_magic && mvn package
+# 执行
+java -jar target/dark_magic-1.0-SNAPSHOT.jar
+```
+控制台打印示例
+```$xslt
+Target queue memory usage (bytes): 100000
+createTask() produced threadpool.AsyncIOTask which took 40 bytes in a queue
+Formula: 100000 / 40
+* Recommended queue capacity (bytes): 2500
+Number of CPU: 4
+Target utilization: 1
+Elapsed time (nanos): 3000000000
+Compute time (nanos): 125000000
+Wait time (nanos): 2875000000
+Formula: 4 * 1 * (1 + 2875000000 / 125000000)
+* Optimal thread count: 96
+```
+> 如果不修改队列内存大小和任务，队列数可能都是2500
